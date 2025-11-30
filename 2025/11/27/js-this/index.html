@@ -1,0 +1,281 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>js-this | Chy的博客</title><meta name="author" content="Chy"><meta name="copyright" content="Chy"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#FFF8E1"><meta name="description" content="1.this是什么？this 是 JS 中最核心的关键字之一，本质是 “函数运行时的上下文对象” 。this 指向 &#x3D; 函数的调用者 2. this 的四大绑定规则（普通函数）JavaScript 的 this 有四套核心规则，按优先级从低到高： 2.1 默认绑定（独立调用）函数被直接调用，没有对象： 12345678910111213&#x2F;&#x2F; 示例1：非严格模式function sayHi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="js-this">
+<meta property="og:url" content="https://chy123-ui.github.io/2025/11/27/js-this/index.html">
+<meta property="og:site_name" content="Chy的博客">
+<meta property="og:description" content="1.this是什么？this 是 JS 中最核心的关键字之一，本质是 “函数运行时的上下文对象” 。this 指向 &#x3D; 函数的调用者 2. this 的四大绑定规则（普通函数）JavaScript 的 this 有四套核心规则，按优先级从低到高： 2.1 默认绑定（独立调用）函数被直接调用，没有对象： 12345678910111213&#x2F;&#x2F; 示例1：非严格模式function sayHi">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://chy123-ui.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2025-11-27T13:00:00.000Z">
+<meta property="article:modified_time" content="2025-11-30T14:22:01.587Z">
+<meta property="article:author" content="Chy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chy123-ui.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "js-this",
+  "url": "https://chy123-ui.github.io/2025/11/27/js-this/",
+  "image": "https://chy123-ui.github.io/img/butterfly-icon.png",
+  "datePublished": "2025-11-27T13:00:00.000Z",
+  "dateModified": "2025-11-30T14:22:01.587Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Chy",
+      "url": "https://chy123-ui.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://chy123-ui.github.io/2025/11/27/js-this/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#4E342E')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#FFF8E1')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'js-this',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="web_bg" style="background-image: url(/img/02.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/06.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Chy的博客</span></a><a class="nav-page-title" href="/"><span class="site-name">js-this</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">js-this</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-11-27T13:00:00.000Z" title="发表于 2025-11-27 21:00:00">2025-11-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-11-30T14:22:01.587Z" title="更新于 2025-11-30 22:22:01">2025-11-30</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/%E5%89%8D%E7%AB%AF/">前端</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/%E5%89%8D%E7%AB%AF/JS/">JS</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="1-this是什么？"><a href="#1-this是什么？" class="headerlink" title="1.this是什么？"></a>1.this是什么？</h1><p><code>this</code> 是 JS 中最核心的关键字之一，<strong>本质是 “函数运行时的上下文对象”</strong> 。<strong>this 指向 &#x3D; 函数的调用者</strong></p>
+<h1 id="2-this-的四大绑定规则（普通函数）"><a href="#2-this-的四大绑定规则（普通函数）" class="headerlink" title="2. this 的四大绑定规则（普通函数）"></a>2. this 的四大绑定规则（普通函数）</h1><p>JavaScript 的 this 有四套核心规则，按优先级从低到高：</p>
+<h2 id="2-1-默认绑定（独立调用）"><a href="#2-1-默认绑定（独立调用）" class="headerlink" title="2.1 默认绑定（独立调用）"></a>2.1 默认绑定（独立调用）</h2><p>函数被直接调用，没有对象：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例1：非严格模式</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">sayHi</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>); <span class="comment">// 指向 window（浏览器）</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">name</span>); <span class="comment">// 访问 window.name（空字符串，默认全局属性）</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">sayHi</span>(); <span class="comment">// 普通调用 → this = window</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例2：严格模式</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">strictFunc</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="string">&#x27;use strict&#x27;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>); <span class="comment">// undefined</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">strictFunc</span>();</span><br></pre></td></tr></table></figure>
+
+<p>独立调用情况下，this &#x3D; 全局对象（或 undefined）。</p>
+<hr>
+<h2 id="2-2-隐式绑定（作为对象的方法调用）"><a href="#2-2-隐式绑定（作为对象的方法调用）" class="headerlink" title="2.2 隐式绑定（作为对象的方法调用）"></a>2.2 隐式绑定（作为对象的方法调用）</h2><p><strong>格式</strong>：<code>对象.函数名()</code></p>
+<p>当函数作为对象的“方法”调用时：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123;</span><br><span class="line">  <span class="attr">x</span>: <span class="number">1</span>,</span><br><span class="line">  <span class="title function_">f</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">obj.<span class="title function_">f</span>(); <span class="comment">// this = obj</span></span><br></pre></td></tr></table></figure>
+
+<p>谁“点”了这个函数，this 就指向谁。</p>
+<p>方法调用（object.method()）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">function speak(line) &#123;</span><br><span class="line">  console.log(`The $&#123;this.type&#125; rabbit says &#x27;$&#123;line&#125;&#x27;`);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let whiteRabbit = &#123; type: &quot;white&quot;, speak: speak &#125;;</span><br><span class="line"></span><br><span class="line">whiteRabbit.speak(&quot;Hello!&quot;);</span><br></pre></td></tr></table></figure>
+
+<p><strong>运行时发生了什么（逐步）</strong></p>
+<ol>
+<li>引擎看到 <code>whiteRabbit.speak(&quot;Hello!&quot;)</code>。</li>
+<li>它先做“属性查找”：在 <code>whiteRabbit</code> 上找到 <code>speak</code>，这返回函数值 <code>speak</code>。</li>
+<li>接着“调用”这个函数，<strong>同时记录调用者对象是 <code>whiteRabbit</code></strong>。</li>
+<li>在函数内部，<code>this</code> 被设置为那个调用者：<code>this === whiteRabbit</code>。</li>
+<li>因此 <code>this.type</code> 就是 <code>&quot;white&quot;</code>，输出 <code>&quot;The white rabbit says &#39;Hello!&#39;&quot;</code>。</li>
+</ol>
+<p><strong>结论</strong>：<code>object.method()</code> → <code>this</code> 就是那个 <code>object</code>。</p>
+<hr>
+<h3 id="将方法赋给变量然后调用（函数丢失“主人”）"><a href="#将方法赋给变量然后调用（函数丢失“主人”）" class="headerlink" title="将方法赋给变量然后调用（函数丢失“主人”）"></a>将方法赋给变量然后调用（函数丢失“主人”）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">let speakFunc = whiteRabbit.speak; // 只是把函数引用取出来</span><br><span class="line">speakFunc(&quot;Hi!&quot;);</span><br></pre></td></tr></table></figure>
+
+<p><strong>发生了什么</strong></p>
+<ol>
+<li><code>speakFunc</code> 只是函数的引用，不再通过 <code>whiteRabbit.</code> 调用。</li>
+<li>调用时没有“调用者对象”，因此 <code>this</code> <strong>不是</strong> <code>whiteRabbit</code>。</li>
+<li>在严格模式下 <code>this === undefined</code>；非严格模式下 <code>this</code> 是全局对象（浏览器里是 <code>window</code>）。</li>
+<li><code>this.type</code> 可能是 <code>undefined</code> 或抛错（如果严格模式下访问 <code>this.type</code> 会报错）。</li>
+</ol>
+<p><strong>结论</strong>：把方法当作普通函数调用（没有对象点在前面）就丢失了 <code>this</code>。</p>
+<hr>
+<h2 id="2-3-显式绑定（call-apply-bind）"><a href="#2-3-显式绑定（call-apply-bind）" class="headerlink" title="2.3 显式绑定（call &#x2F; apply &#x2F; bind）"></a>2.3 显式绑定（call &#x2F; apply &#x2F; bind）</h2><p>用 call &#x2F; apply &#x2F; bind 手动指定：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">f</span>(<span class="params"></span>) &#123; <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>); &#125;</span><br><span class="line"></span><br><span class="line">f.<span class="title function_">call</span>(&#123;<span class="attr">a</span>: <span class="number">100</span>&#125;);  <span class="comment">// this = &#123;a:100&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>显式绑定会强行改变 this。</p>
+<p><code>call/apply</code> 的唯一核心目的：<strong>强行把函数的 <code>this</code> 改成你指定的对象</strong>，同时立即执行这个函数。</p>
+<hr>
+<p> 绑定调用（手动控制 this，重要）</p>
+<p><strong>格式</strong>：<code>函数名.call(指向对象, 实参1, 实参2...)</code> 或 <code>函数名.apply(指向对象, [实参数组])</code><strong>规则</strong>：this 强制指向「第一个参数指定的对象」（手动 “绑定” 上下文，解决 this 指向混乱问题）</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例：给普通函数绑定对象</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">showMsg</span>(<span class="params">msg</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;msg&#125;</span>，当前主题：<span class="subst">$&#123;<span class="variable language_">this</span>.theme&#125;</span>`</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> myBlog = &#123; <span class="attr">theme</span>: <span class="string">&quot;Butterfly&quot;</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// call 调用：第一个参数是 this 指向，后面是单个实参</span></span><br><span class="line">showMsg.<span class="title function_">call</span>(myBlog, <span class="string">&quot;我的 Hexo 博客&quot;</span>); </span><br><span class="line"><span class="comment">// 输出：我的 Hexo 博客，当前主题：Butterfly</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// apply 调用：第一个参数是 this 指向，第二个是实参数组</span></span><br><span class="line">showMsg.<span class="title function_">apply</span>(myBlog, [<span class="string">&quot;个性化配置&quot;</span>]);</span><br><span class="line"><span class="comment">// 输出：个性化配置，当前主题：Butterfly</span></span><br></pre></td></tr></table></figure>
+
+<p>先看「没有 call&#x2F;apply」的情况（问题所在）</p>
+<p>先删掉 <code>call/apply</code>，看原始函数执行的问题：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">showMsg</span>(<span class="params">msg</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;msg&#125;</span>，当前主题：<span class="subst">$&#123;<span class="variable language_">this</span>.theme&#125;</span>`</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> myBlog = &#123; <span class="attr">theme</span>: <span class="string">&quot;Butterfly&quot;</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 直接调用函数（普通调用）</span></span><br><span class="line"><span class="title function_">showMsg</span>(<span class="string">&quot;我的 Hexo 博客&quot;</span>); </span><br><span class="line"><span class="comment">// 输出：我的 Hexo 博客，当前主题：undefined</span></span><br></pre></td></tr></table></figure>
+
+<p>❌ 为什么是 <code>undefined</code>？因为普通调用时 <code>this</code> 指向 <code>window</code>，而 <code>window</code> 里没有 <code>theme</code> 属性，所以 <code>this.theme</code> 是 <code>undefined</code>。</p>
+<p>我们的需求是：让 <code>showMsg</code> 函数里的 <code>this</code> 指向 <code>myBlog</code>（这样才能拿到 <code>myBlog.theme</code>），这就是 <code>call/apply</code> 的作用！</p>
+<hr>
+<h3 id="拆解-call-的用法（逐个参数讲）"><a href="#拆解-call-的用法（逐个参数讲）" class="headerlink" title="拆解 call 的用法（逐个参数讲）"></a>拆解 <code>call</code> 的用法（逐个参数讲）</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">showMsg.<span class="title function_">call</span>(myBlog, <span class="string">&quot;我的 Hexo 博客&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>把这行代码拆成 3 部分：</p>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>showMsg</code></td>
+<td>要执行的函数（目标函数）</td>
+</tr>
+<tr>
+<td><code>.call()</code></td>
+<td>调用 <code>call</code> 方法，告诉 JS：“我要改这个函数的 this，并且立即执行它”</td>
+</tr>
+<tr>
+<td><code>myBlog</code></td>
+<td>第一个参数：强制把 <code>showMsg</code> 里的 <code>this</code> 改成 <code>myBlog</code></td>
+</tr>
+<tr>
+<td><code>&quot;我的 Hexo 博客&quot;</code></td>
+<td>第二个及以后的参数：传给 <code>showMsg</code> 的实参（对应函数里的 <code>msg</code> 参数）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="2-4-new-绑定（构造函数）"><a href="#2-4-new-绑定（构造函数）" class="headerlink" title="2.4 new 绑定（构造函数）"></a>2.4 new 绑定（构造函数）</h2><p>使用 new 调用时，会创建一个新对象并绑定给 this：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Person</span>(<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> p = <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;A&quot;</span>); <span class="comment">// this = p</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="构造函数调用："><a href="#构造函数调用：" class="headerlink" title="构造函数调用："></a>构造函数调用：</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">speak</span>(<span class="params">line</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`The <span class="subst">$&#123;<span class="variable language_">this</span>.type&#125;</span> rabbit says &#x27;<span class="subst">$&#123;line&#125;</span>&#x27;`</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> whiteRabbit = &#123;<span class="attr">type</span>: <span class="string">&quot;white&quot;</span>, speak&#125;;</span><br><span class="line"><span class="keyword">let</span> hungryRabbit = &#123;<span class="attr">type</span>: <span class="string">&quot;hungry&quot;</span>, speak&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这里的对象：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">whiteRabbit.<span class="title function_">speak</span>(<span class="string">&quot;Oh my fur and whiskers&quot;</span>);</span><br><span class="line">hungryRabbit.<span class="title function_">speak</span>(<span class="string">&quot;Got any carrots?&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">The</span> white rabbit says <span class="string">&#x27;Oh my fur and whiskers&#x27;</span></span><br><span class="line"><span class="title class_">The</span> hungry rabbit says <span class="string">&#x27;Got any carrots?&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="✅-解释："><a href="#✅-解释：" class="headerlink" title="✅ 解释："></a>✅ 解释：</h3><ul>
+<li><code>whiteRabbit.speak(...)</code> 是“方法调用”。</li>
+<li>这时 JS 会自动把 <code>whiteRabbit</code> 绑定为 <code>this</code>。</li>
+<li>所以在 <code>speak</code> 函数内部，<code>this.type</code> 指的是 <code>whiteRabbit.type</code>。</li>
+</ul>
+<h1 id="3-箭头函数绑定方式：词法（静态）绑定"><a href="#3-箭头函数绑定方式：词法（静态）绑定" class="headerlink" title="3. 箭头函数绑定方式：词法（静态）绑定"></a>3. 箭头函数绑定方式：词法（静态）绑定</h1><p><strong>箭头函数没有自己的 this</strong><br> 它会<strong>从定义时的外层作用域继承 this</strong>（词法绑定）。</p>
+<p>例：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123;</span><br><span class="line">  <span class="attr">value</span>: <span class="number">42</span>,</span><br><span class="line">  <span class="attr">f</span>: <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">obj.<span class="title function_">f</span>(); <span class="comment">// this 不是 obj！  </span></span><br><span class="line">         <span class="comment">// 而是 obj 定义时的外层作用域（如 window）</span></span><br></pre></td></tr></table></figure>
+
+<p>所以：</p>
+<ul>
+<li>普通函数：<strong>this 动态绑定（根据调用方式决定）</strong></li>
+<li>箭头函数：<strong>this 静态绑定（根据定义时外层作用域决定）</strong></li>
+</ul>
+<hr>
+<h1 id="4-为什么箭头函数没有自己的-this？"><a href="#4-为什么箭头函数没有自己的-this？" class="headerlink" title="4. 为什么箭头函数没有自己的 this？"></a>4. 为什么箭头函数没有自己的 this？</h1><p>因为箭头函数在设计时主要用于：</p>
+<ul>
+<li>回调</li>
+<li>内联函数</li>
+<li>保持词法作用域</li>
+</ul>
+<p>如果它有自己的 this，会和 class&#x2F;method 的 this 冲突，代码会变复杂。</p>
+<p>因此，设计者直接禁掉了它的 this，让它“从外面拿”，就像：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> that = <span class="variable language_">this</span>;</span><br></pre></td></tr></table></figure>
+
+<p>的语法糖。</p>
+<hr>
+<h1 id="5-this-的本质"><a href="#5-this-的本质" class="headerlink" title="5. this 的本质"></a>5. this 的本质</h1><p><strong>this 不是词法作用域变量，不是根据代码写在哪里决定的。<br> 它是执行时的上下文对象，由函数的调用方式决定。<br> 箭头函数除外，它从外层作用域继承 this。</strong></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://chy123-ui.github.io">Chy</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://chy123-ui.github.io/2025/11/27/js-this/">https://chy123-ui.github.io/2025/11/27/js-this/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://chy123-ui.github.io" target="_blank">Chy的博客</a>！</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/11/28/volcano-02/" title="火山的女儿-二周目"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">火山的女儿-二周目</div></div><div class="info-2"><div class="info-item-1">记得睡觉，别打通宵 </div></div></div></a><a class="pagination-related" href="/2025/11/27/hello-world/" title="Hello World"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Hello World</div></div><div class="info-2"><div class="info-item-1">Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick StartCreate a new post1$ hexo new &quot;My New Post&quot;  More info: Writing Run server1$ hexo server  More info: Server Generate static files1$ hexo generate  More info: Generating Deploy to remote sites1$ hexo deploy  More info: Deployment </div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Chy</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Chy123-ui/Chy123-ui.github.io" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-this%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">1.this是什么？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-this-%E7%9A%84%E5%9B%9B%E5%A4%A7%E7%BB%91%E5%AE%9A%E8%A7%84%E5%88%99%EF%BC%88%E6%99%AE%E9%80%9A%E5%87%BD%E6%95%B0%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">2. this 的四大绑定规则（普通函数）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E9%BB%98%E8%AE%A4%E7%BB%91%E5%AE%9A%EF%BC%88%E7%8B%AC%E7%AB%8B%E8%B0%83%E7%94%A8%EF%BC%89"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 默认绑定（独立调用）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E9%9A%90%E5%BC%8F%E7%BB%91%E5%AE%9A%EF%BC%88%E4%BD%9C%E4%B8%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 隐式绑定（作为对象的方法调用）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%86%E6%96%B9%E6%B3%95%E8%B5%8B%E7%BB%99%E5%8F%98%E9%87%8F%E7%84%B6%E5%90%8E%E8%B0%83%E7%94%A8%EF%BC%88%E5%87%BD%E6%95%B0%E4%B8%A2%E5%A4%B1%E2%80%9C%E4%B8%BB%E4%BA%BA%E2%80%9D%EF%BC%89"><span class="toc-number">2.2.1.</span> <span class="toc-text">将方法赋给变量然后调用（函数丢失“主人”）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E6%98%BE%E5%BC%8F%E7%BB%91%E5%AE%9A%EF%BC%88call-apply-bind%EF%BC%89"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 显式绑定（call &#x2F; apply &#x2F; bind）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8B%86%E8%A7%A3-call-%E7%9A%84%E7%94%A8%E6%B3%95%EF%BC%88%E9%80%90%E4%B8%AA%E5%8F%82%E6%95%B0%E8%AE%B2%EF%BC%89"><span class="toc-number">2.3.1.</span> <span class="toc-text">拆解 call 的用法（逐个参数讲）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-new-%E7%BB%91%E5%AE%9A%EF%BC%88%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%EF%BC%89"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 new 绑定（构造函数）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%9A"><span class="toc-number">2.4.1.</span> <span class="toc-text">构造函数调用：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%9C%85-%E8%A7%A3%E9%87%8A%EF%BC%9A"><span class="toc-number">2.4.2.</span> <span class="toc-text">✅ 解释：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0%E7%BB%91%E5%AE%9A%E6%96%B9%E5%BC%8F%EF%BC%9A%E8%AF%8D%E6%B3%95%EF%BC%88%E9%9D%99%E6%80%81%EF%BC%89%E7%BB%91%E5%AE%9A"><span class="toc-number">3.</span> <span class="toc-text">3. 箭头函数绑定方式：词法（静态）绑定</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0%E6%B2%A1%E6%9C%89%E8%87%AA%E5%B7%B1%E7%9A%84-this%EF%BC%9F"><span class="toc-number">4.</span> <span class="toc-text">4. 为什么箭头函数没有自己的 this？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-this-%E7%9A%84%E6%9C%AC%E8%B4%A8"><span class="toc-number">5.</span> <span class="toc-text">5. this 的本质</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/11/28/volcano-02/" title="火山的女儿-二周目">火山的女儿-二周目</a><time datetime="2025-11-28T05:36:21.000Z" title="发表于 2025-11-28 13:36:21">2025-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/11/27/js-this/" title="js-this">js-this</a><time datetime="2025-11-27T13:00:00.000Z" title="发表于 2025-11-27 21:00:00">2025-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/11/27/hello-world/" title="Hello World">Hello World</a><time datetime="2025-11-27T03:38:23.775Z" title="发表于 2025-11-27 11:38:23">2025-11-27</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Chy</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><div class="js-pjax"></div><script async data-pjax src="/"></script></div></body></html>
